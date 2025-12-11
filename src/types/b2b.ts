@@ -1,0 +1,51 @@
+/**
+ * Tipos para el módulo B2B (Mayorista)
+ */
+
+export interface ProductB2BCard {
+  id: string;
+  sku: string;
+  nombre: string;
+  precio_b2b: number;
+  moq: number;
+  stock_fisico: number;
+  imagen_principal: string;
+  categoria_id: string;
+}
+
+export interface CartItemB2B {
+  productId: string;
+  sku: string;
+  nombre: string;
+  precio_b2b: number;
+  moq: number;
+  stock_fisico: number;
+  cantidad: number; // Cantidad solicitada
+  subtotal: number; // precio_b2b * cantidad
+}
+
+export interface CartB2B {
+  items: CartItemB2B[];
+  totalItems: number;
+  totalQuantity: number;
+  subtotal: number;
+}
+
+export interface OrderB2B {
+  id?: string;
+  seller_id: string;
+  items: CartItemB2B[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  payment_method: 'stripe' | 'moncash' | 'transfer';
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  created_at?: string;
+}
+
+export interface B2BFilters {
+  searchQuery: string;
+  category: string | null;
+  stockStatus: 'all' | 'in_stock' | 'low_stock' | 'out_of_stock';
+  sortBy: 'newest' | 'price_asc' | 'price_desc' | 'moq_asc' | 'moq_desc';
+}

@@ -1,95 +1,99 @@
-import { ArrowRight, Package, Shield, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const HeroSection = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      id: 1,
+      title: "Navidad",
+      image: "https://images.unsplash.com/photo-1482684364924-3be32fe17ce9?w=1200&h=400&fit=crop",
+      color: "bg-red-600",
+    },
+    {
+      id: 2,
+      title: "Súper Rebajas",
+      image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=400&fit=crop",
+      color: "bg-orange-600",
+    },
+    {
+      id: 3,
+      title: "Top Ventas",
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1200&h=400&fit=crop",
+      color: "bg-purple-600",
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-hero-gradient" />
-      
-      {/* Decorative Elements */}
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-teal/20 rounded-full blur-3xl" />
-      
-      <div className="container relative z-10 mx-auto px-4 py-12 md:py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-8 animate-fade-up">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-sm font-medium text-primary-foreground">
-              Marketplace Mayorista #1 en Haití
-            </span>
-          </div>
-          
-          {/* Heading */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground leading-tight mb-6 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            Comercio al Por Mayor{" "}
-            <span className="text-gradient-gold">Sin Fronteras</span>
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            Conectamos mayoristas con vendedores en toda Haití. 
-            Sistema de pago anticipado B2B y red de puntos de recogida 
-            para entregas seguras.
-          </p>
-          
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/catalogo" className="flex items-center gap-2">
-                Explorar Catálogo
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button variant="heroOutline" size="xl" asChild>
-              <Link to="/seller/registro">
-                Convertirse en Vendedor
-              </Link>
-            </Button>
-          </div>
-          
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-up" style={{ animationDelay: "0.4s" }}>
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                <Package className="w-6 h-6 text-accent" />
-              </div>
-              <div className="text-left">
-                <p className="font-bold text-primary-foreground">Lotes Flexibles</p>
-                <p className="text-sm text-primary-foreground/70">MOQ adaptado a ti</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-xl bg-teal/30 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-teal-light" />
-              </div>
-              <div className="text-left">
-                <p className="font-bold text-primary-foreground">Pago Seguro</p>
-                <p className="text-sm text-primary-foreground/70">Conciliación B2B</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div className="text-left">
-                <p className="font-bold text-primary-foreground">+50 Puntos</p>
-                <p className="text-sm text-primary-foreground/70">Recogida en todo Haití</p>
-              </div>
+    <section className="relative w-full h-96 mt-28 overflow-hidden">
+      {/* Carousel Container */}
+      <div className="relative w-full h-full">
+        {slides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-500 ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+              <h2 className="text-4xl md:text-6xl font-bold text-white">
+                {slide.title}
+              </h2>
             </div>
           </div>
-        </div>
+        ))}
       </div>
-      
-      {/* Wave SVG */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path d="M0 120L60 110C120 100 240 80 360 75C480 70 600 80 720 85C840 90 960 90 1080 85C1200 80 1320 70 1380 65L1440 60V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
-        </svg>
+
+      {/* Navigation Arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 p-2 rounded-full transition"
+      >
+        <ChevronLeft className="w-6 h-6 text-white" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 p-2 rounded-full transition"
+      >
+        <ChevronRight className="w-6 h-6 text-white" />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`w-3 h-3 rounded-full transition ${
+              index === currentSlide ? "bg-white" : "bg-white/50"
+            }`}
+          />
+        ))}
       </div>
     </section>
   );
