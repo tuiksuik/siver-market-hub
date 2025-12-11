@@ -1,4 +1,5 @@
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
+import { useState } from 'react';
 import { B2BFilters } from '@/types/b2b';
 
 interface SearchFilterB2BProps {
@@ -8,14 +9,42 @@ interface SearchFilterB2BProps {
 }
 
 const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB2BProps) => {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const hasActiveFilters = filters.searchQuery || filters.category || filters.stockStatus !== 'all';
+
+  const handleClearFilters = () => {
+    onFiltersChange({
+      searchQuery: '',
+      category: null,
+      stockStatus: 'all',
+      sortBy: 'newest',
+    });
+  };
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Filter className="w-5 h-5 text-blue-600" />
-        <h2 className="text-lg font-bold">Buscar y Filtrar</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-bold">Buscar y Filtrar</h2>
+          {hasActiveFilters && (
+            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold">
+              Activos
+            </span>
+          )}
+        </div>
+        {hasActiveFilters && (
+          <button
+            onClick={handleClearFilters}
+            className="flex items-center gap-1 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition"
+          >
+            <X className="w-4 h-4" />
+            Limpiar filtros
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         {/* Búsqueda por SKU o Nombre */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -30,7 +59,7 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
               onChange={(e) =>
                 onFiltersChange({ ...filters, searchQuery: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
         </div>
@@ -38,7 +67,7 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
         {/* Categoría */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Categoría
+            Categoría ({categories.length})
           </label>
           <select
             value={filters.category || ''}
@@ -48,7 +77,7 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
                 category: e.target.value || null,
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           >
             <option value="">Todas</option>
             {categories.map((cat) => (
@@ -62,7 +91,7 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
         {/* Estatus de Stock */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Stock
+            Disponibilidad
           </label>
           <select
             value={filters.stockStatus}
@@ -72,9 +101,9 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
                 stockStatus: e.target.value as B2BFilters['stockStatus'],
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           >
-            <option value="all">Todo</option>
+            <option value="all">Todos</option>
             <option value="in_stock">En Stock</option>
             <option value="low_stock">Stock Bajo</option>
             <option value="out_of_stock">Agotado</option>
@@ -94,16 +123,51 @@ const SearchFilterB2B = ({ filters, onFiltersChange, categories }: SearchFilterB
                 sortBy: e.target.value as B2BFilters['sortBy'],
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           >
             <option value="newest">Más Nuevo</option>
-            <option value="price_asc">Precio ↑</option>
-            <option value="price_desc">Precio ↓</option>
-            <option value="moq_asc">MOQ ↑</option>
-            <option value="moq_desc">MOQ ↓</option>
+            <option value="price_asc">Precio ↑ (Menor a Mayor)</option>
+            <option value="price_desc">Precio ↓ (Mayor a Menor)</option>
+            <option value="moq_asc">MOQ ↑ (Menor cantidad)</option>
+            <option value="moq_desc">MOQ ↓ (Mayor cantidad)</option>
           </select>
         </div>
       </div>
+
+      {/* Botón Filtros Avanzados */}
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium transition"
+      >
+        <Filter className="w-4 h-4" />
+        {showAdvanced ? 'Ocultar' : 'Mostrar'} filtros avanzados
+      </button>
+
+      {/* Filtros Avanzados */}
+      {showAdvanced && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+              <h3 className="font-semibold text-sm text-indigo-900 mb-2">💡 Consejos de Búsqueda</h3>
+              <ul className="text-xs text-indigo-700 space-y-1">
+                <li>• Usa el nombre o SKU para buscar productos específicos</li>
+                <li>• Filtra por categoría para ver opciones relacionadas</li>
+                <li>• Verifica stock antes de añadir al carrito</li>
+                <li>• Los descuentos se aplican automáticamente según cantidad</li>
+              </ul>
+            </div>
+            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <h3 className="font-semibold text-sm text-green-900 mb-2">🎯 Beneficios Mayorista</h3>
+              <ul className="text-xs text-green-700 space-y-1">
+                <li>• MOQ: Cantidad mínima de orden</li>
+                <li>• Descuentos progresivos por volumen</li>
+                <li>• Precios especiales B2B</li>
+                <li>• Stock garantizado para mayoristas</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

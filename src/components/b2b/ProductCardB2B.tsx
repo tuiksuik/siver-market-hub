@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { ShoppingCart, AlertCircle } from 'lucide-react';
+import { ShoppingCart, AlertCircle, Check } from 'lucide-react';
 import { ProductB2BCard, CartItemB2B } from '@/types/b2b';
 
 interface ProductCardB2BProps {
   product: ProductB2BCard;
   onAddToCart: (item: CartItemB2B) => void;
+  cartItem?: CartItemB2B;
 }
 
-const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
+const ProductCardB2B = ({ product, onAddToCart, cartItem }: ProductCardB2BProps) => {
   const [cantidad, setCantidad] = useState(product.moq);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,10 +16,30 @@ const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
   const isInvalid = cantidad < product.moq || cantidad > product.stock_fisico;
   const isOutOfStock = product.stock_fisico === 0;
 
+  // Calcular descuentos según cantidad
+  const getDiscount = () => {
+    if (cantidad >= product.moq * 10) return 0.20; // 20% descuento
+    if (cantidad >= product.moq * 5) return 0.15; // 15% descuento
+    if (cantidad >= product.moq * 3) return 0.10; // 10% descuento
+    if (cantidad >= product.moq * 2) return 0.05; // 5% descuento
+    return 0;
+  };
+
+  const discountPercent = getDiscount();
+  const discountedPrice = product.precio_b2b * (1 - discountPercent);
+  const finalSubtotal = cantidad * discountedPrice;
+  const savings = subtotal - finalSubtotal;
+
   const getStockStatus = () => {
     if (isOutOfStock) return 'Agotado';
     if (product.stock_fisico < product.moq * 2) return 'Stock bajo';
     return `${product.stock_fisico} unidades`;
+  };
+
+  const getStockColor = () => {
+    if (isOutOfStock) return 'text-red-600 bg-red-50';
+    if (product.stock_fisico < product.moq * 2) return 'text-amber-600 bg-amber-50';
+    return 'text-green-600 bg-green-50';
   };
 
   const handleAddToCart = () => {
@@ -50,7 +71,16 @@ const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition">
+    <div className={`bg-white rounded-lg border-2 overflow-hidden hover:shadow-xl transition ${
+      cartItem ? 'border-green-500 shadow-lg' : 'border-gray-200'
+    }`}>
+      {/* Badge en carrito */}
+      {cartItem && (
+        <div className="absolute top-2 right-2 z-10 bg-green-500 text-white rounded-full p-2">
+          <Check className="w-4 h-4" />
+        </div>
+      )}
+
       {/* Imagen */}
       <div className="relative h-48 bg-gray-100 overflow-hidden">
         <img
@@ -61,6 +91,13 @@ const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-red-500 text-white px-4 py-2 rounded">Agotado</span>
+          </div>
+        )}
+        
+        {/* Descuento Badge */}
+        {discountPercent > 0 && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-lg font-bold text-sm">
+            -{(discountPercent * 100).toFixed(0)}%
           </div>
         )}
       </div>
@@ -75,25 +112,50 @@ const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
           {product.nombre}
         </h3>
 
-        {/* Precio Mayorista - DESTACADO */}
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        {/* Precios - Mejorado */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
           <p className="text-xs text-gray-600 mb-1">Precio Mayorista</p>
-          <p className="text-2xl font-bold text-blue-600">
-            ${product.precio_b2b.toFixed(2)}
-          </p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-2xl font-bold text-blue-600">
+              ${discountedPrice.toFixed(2)}
+            </p>
+            {discountPercent > 0 && (
+              <p className="text-sm text-gray-500 line-through">
+                ${product.precio_b2b.toFixed(2)}
+              </p>
+            )}
+          </div>
+          {discountPercent > 0 && (
+            <p className="text-xs text-green-600 font-semibold mt-1">
+              ¡Ahorras ${savings.toFixed(2)}!
+            </p>
+          )}
         </div>
 
         {/* MOQ y Stock */}
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-2 bg-amber-50 rounded">
+          <div className="p-2 bg-amber-50 rounded border border-amber-200">
             <p className="text-xs text-gray-600">MOQ</p>
             <p className="text-lg font-bold text-amber-600">{product.moq}</p>
           </div>
-          <div className="p-2 bg-green-50 rounded">
+          <div className={`p-2 rounded border ${getStockColor()} border-opacity-30`}>
             <p className="text-xs text-gray-600">Stock</p>
-            <p className="text-lg font-bold text-green-600">{getStockStatus()}</p>
+            <p className={`text-lg font-bold ${getStockColor()}`}>{getStockStatus()}</p>
           </div>
         </div>
+
+        {/* Información de descuentos */}
+        {!isOutOfStock && (
+          <div className="mb-4 p-2 bg-indigo-50 rounded text-xs text-indigo-700 border border-indigo-200">
+            <p className="font-semibold mb-1">Descuentos por volumen:</p>
+            <div className="space-y-1 text-xs">
+              <p>• {product.moq * 2}+ = 5% descuento</p>
+              <p>• {product.moq * 3}+ = 10% descuento</p>
+              <p>• {product.moq * 5}+ = 15% descuento</p>
+              <p>• {product.moq * 10}+ = 20% descuento</p>
+            </div>
+          </div>
+        )}
 
         {/* Campo de Cantidad */}
         <div className="mb-4">
@@ -128,9 +190,9 @@ const ProductCardB2B = ({ product, onAddToCart }: ProductCardB2BProps) => {
         </div>
 
         {/* Subtotal */}
-        <div className="mb-4 p-2 bg-gray-50 rounded text-center">
-          <p className="text-xs text-gray-600">Subtotal</p>
-          <p className="text-lg font-bold text-gray-900">${subtotal.toFixed(2)}</p>
+        <div className="mb-4 p-2 bg-gray-50 rounded text-center border-2 border-gray-200">
+          <p className="text-xs text-gray-600">Total por Compra</p>
+          <p className="text-xl font-bold text-gray-900">${finalSubtotal.toFixed(2)}</p>
         </div>
 
         {/* Error */}

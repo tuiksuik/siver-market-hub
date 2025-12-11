@@ -16,6 +16,8 @@ const SellerAcquisicionLotes = () => {
   const [products, setProducts] = useState<ProductB2BCard[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductB2BCard[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
   const [filters, setFilters] = useState<B2BFilters>({
     searchQuery: '',
     category: null,
@@ -130,6 +132,17 @@ const SellerAcquisicionLotes = () => {
     setFilteredProducts(result);
   }, [products, filters]);
 
+  // Paginación
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset a página 1 cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
   const categories = [
     { id: 'cat1', nombre: 'Ropa' },
     { id: 'cat2', nombre: 'Zapatos' },
@@ -172,9 +185,14 @@ const SellerAcquisicionLotes = () => {
 
         {/* Resultados */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Productos ({filteredProducts.length})
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900">
+              Productos ({filteredProducts.length} encontrados)
+            </h2>
+            <div className="text-sm text-gray-600">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} de {filteredProducts.length}
+            </div>
+          </div>
 
           {filteredProducts.length === 0 ? (
             <div className="bg-white rounded-lg p-12 text-center">
@@ -183,15 +201,55 @@ const SellerAcquisicionLotes = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
-                <ProductCardB2B
-                  key={product.id}
-                  product={product}
-                  onAddToCart={addItem}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {paginatedProducts.map((product) => (
+                  <ProductCardB2B
+                    key={product.id}
+                    product={product}
+                    onAddToCart={addItem}
+                    cartItem={cart.items.find(item => item.productId === product.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Paginación */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    ← Anterior
+                  </button>
+
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 rounded-lg transition ${
+                          currentPage === page
+                            ? 'bg-blue-600 text-white'
+                            : 'border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
         </main>
