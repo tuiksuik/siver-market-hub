@@ -102,8 +102,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setRole(userRole);
             setIsLoading(false);
 
-            // Redireccionar automáticamente según rol después del login
+            // Solo redirigir si es un nuevo login (evento SIGNED_IN)
+            // pero NO redirigir en la página de inicio ("/")
             if (event === 'SIGNED_IN') {
+              const currentPath = window.location.pathname;
+              // No redirigir si ya estamos en una ruta pública como la homepage
+              if (currentPath === '/' || currentPath === '/marketplace') {
+                // Permitir que se quede en la página pública
+                return;
+              }
+              
               if (userRole === UserRole.SELLER) {
                 navigate('/seller/adquisicion-lotes');
               } else if (userRole === UserRole.ADMIN) {
