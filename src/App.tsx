@@ -30,6 +30,7 @@ import AdminCategorias from "./pages/admin/AdminCategorias";
 // Seller Pages
 import SellerAcquisicionLotes from "./pages/seller/SellerAcquisicionLotes";
 import SellerCheckout from "./pages/seller/SellerCheckout";
+import SellerCatalogo from "./pages/seller/SellerCatalogo";
 
 const AppContent = () => {
   const { toasts, removeToast } = useToast();
@@ -101,6 +102,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute requiredRoles={[UserRole.SELLER, UserRole.ADMIN]}>
                   <SellerCheckout />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/seller/catalogo" 
+              element={
+                <ProtectedRoute requiredRoles={[UserRole.SELLER, UserRole.ADMIN]}>
+                  <SellerCatalogo />
                 </ProtectedRoute>
               } 
             />

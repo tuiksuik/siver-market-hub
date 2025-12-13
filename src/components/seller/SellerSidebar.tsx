@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, Home, LogOut, ShoppingBag, ChevronLeft } from "lucide-react";
+import { ShoppingCart, Home, LogOut, ShoppingBag, ChevronLeft, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -27,6 +27,12 @@ export function SellerSidebar() {
       url: "/seller/adquisicion-lotes", 
       icon: ShoppingCart,
       description: "Compra mayorista"
+    },
+    { 
+      title: "Mi Catálogo", 
+      url: "/seller/catalogo", 
+      icon: Package,
+      description: "Productos para venta"
     },
   ];
 
