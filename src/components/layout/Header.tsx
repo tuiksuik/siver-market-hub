@@ -4,25 +4,20 @@ import { Menu, X, ShoppingBag, Search, Heart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { usePublicCategories, Category } from "@/hooks/useCategories";
+import CategoryCard from "@/components/landing/CategoryCard";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = [
-    { label: "Solo para ti", href: "#" },
-    { label: "Novedades", href: "#" },
-    { label: "Ofertas", href: "#" },
-    { label: "Ropa de mujer", href: "#" },
-    { label: "Curvy", href: "#" },
-    { label: "Niños", href: "#" },
-    { label: "Ropa para hombre", href: "#" },
-    { label: "Ropa interior", href: "#" },
-    { label: "Accesorios", href: "#" },
-    { label: "Zapatos", href: "#" },
-    { label: "Hogar y Vida", href: "#" },
-    { label: "Belleza y Salud", href: "#" },
-  ];
+  const { data: categories = [], isLoading: categoriesLoading } = usePublicCategories();
+
+  // Root categories (no parent)
+  const rootCategories: Category[] = categories.filter((c: Category) => !c.parent_id);
+
+  const getSubcategories = (parentId: string) =>
+    categories.filter((c: Category) => c.parent_id === parentId);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
@@ -99,16 +94,46 @@ const Header = () => {
         </div>
 
         {/* Categories Bar */}
-        <div className="hidden lg:flex items-center overflow-x-auto gap-0 border-t border-gray-200 h-12">
-          {categories.map((cat) => (
-            <Link
-              key={cat.href}
-              to={cat.href}
-              className="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-500 hover:bg-gray-50 border-b-2 border-transparent hover:border-red-500 transition whitespace-nowrap"
-            >
-              {cat.label}
-            </Link>
-          ))}
+        <div className="hidden lg:flex items-center overflow-x-auto gap-0 border-t border-gray-200 h-12 relative">
+          {categoriesLoading ? (
+            <div className="px-4 py-3 text-sm text-gray-500">Cargando categorías...</div>
+          ) : (
+            rootCategories.map((cat) => {
+              const subs = getSubcategories(cat.id);
+              return (
+                <div key={cat.id} className="relative group">
+                  <Link
+                    to={`/categoria/${cat.slug}`}
+                    className="px-4 py-3 text-sm font-medium text-gray-700 hover:text-red-500 hover:bg-gray-50 border-b-2 border-transparent hover:border-red-500 transition whitespace-nowrap flex items-center gap-2"
+                  >
+                    {cat.name}
+                  </Link>
+
+                  {/* Subcategories dropdown on hover */}
+                  {subs.length > 0 && (
+                    <div className="absolute left-0 top-full mt-2 hidden group-hover:flex p-4 bg-white border border-gray-100 shadow-lg rounded-lg z-40">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {subs.map((sub) => (
+                          <Link key={sub.id} to={`/categoria/${sub.slug}`} className="flex flex-col items-center text-center w-32">
+                            <div className="w-20 h-20 rounded-full overflow-hidden bg-muted flex items-center justify-center mb-2 border border-border">
+                              {sub.icon ? (
+                                <img src={sub.icon} alt={sub.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full bg-muted flex items-center justify-center">
+                                  <span className="text-xl text-muted-foreground">{sub.name.charAt(0).toUpperCase()}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-700">{sub.name}</div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
