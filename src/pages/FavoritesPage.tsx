@@ -2,12 +2,14 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useCart } from "@/hooks/useCart";
 
 const FavoritesPage = () => {
-  // TODO: Implementar lógica real de favoritos
-  const favoriteItems = []; // Mock empty favorites
+  const { items, removeFavorite } = useFavorites();
+  const { addItem } = useCart();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -18,7 +20,7 @@ const FavoritesPage = () => {
           Mis Favoritos
         </h1>
 
-        {favoriteItems.length === 0 ? (
+        {items.length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
               <div className="flex justify-center mb-4">
@@ -35,8 +37,38 @@ const FavoritesPage = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Grid de productos favoritos */}
-            {/* ... */}
+            {items.map((item) => (
+              <Card key={item.id} className="overflow-hidden">
+                <div className="aspect-[3/4] relative">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white text-red-500 hover:text-red-600 rounded-full"
+                    onClick={() => removeFavorite(item.id)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold truncate mb-1">{item.name}</h3>
+                  <p className="text-lg font-bold text-primary mb-3">
+                    ${item.price.toFixed(2)}
+                  </p>
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => addItem({ ...item, quantity: 1 })}
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Agregar al Carrito
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </main>

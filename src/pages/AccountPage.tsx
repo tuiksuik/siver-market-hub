@@ -3,7 +3,8 @@ import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Mail, Calendar } from "lucide-react";
+import { User, Mail, Calendar, Package, MapPin, LogOut, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AccountPage = () => {
   const { user, logout } = useAuth();
@@ -21,8 +22,9 @@ const AccountPage = () => {
               <p className="mb-4 text-muted-foreground">
                 Por favor inicia sesión para ver tu perfil.
               </p>
-              {/* Aquí iría el formulario de login o redirección */}
-              <Button>Ir al Login</Button>
+              <Link to="/login">
+                <Button className="w-full">Ir al Login</Button>
+              </Link>
             </CardContent>
           </Card>
         </main>
@@ -85,13 +87,20 @@ const AccountPage = () => {
               <CardTitle>Acciones</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <Package className="h-4 w-4" />
                 Mis Pedidos
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <MapPin className="h-4 w-4" />
                 Direcciones de Envío
               </Button>
-              <Button variant="destructive" className="w-full justify-start" onClick={logout}>
+              <Button variant="outline" className="w-full justify-start gap-2">
+                <Settings className="h-4 w-4" />
+                Configuración
+              </Button>
+              <Button variant="destructive" className="w-full justify-start gap-2" onClick={logout}>
+                <LogOut className="h-4 w-4" />
                 Cerrar Sesión
               </Button>
             </CardContent>

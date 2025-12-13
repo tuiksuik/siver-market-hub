@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Store, Mail, Calendar, Shield } from "lucide-react";
+import { User, Store, Mail, Calendar, Shield, LogOut, Settings, CreditCard, Bell } from "lucide-react";
 
 const SellerAccountPage = () => {
   const { user, logout } = useAuth();
@@ -74,16 +74,20 @@ const SellerAccountPage = () => {
                 <CardTitle>Configuración de Cuenta</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Settings className="h-4 w-4" />
                   Editar Perfil de Tienda
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <CreditCard className="h-4 w-4" />
                   Métodos de Pago
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Bell className="h-4 w-4" />
                   Configuración de Notificaciones
                 </Button>
-                <Button variant="destructive" className="w-full justify-start" onClick={logout}>
+                <Button variant="destructive" className="w-full justify-start gap-2" onClick={logout}>
+                  <LogOut className="h-4 w-4" />
                   Cerrar Sesión
                 </Button>
               </CardContent>
